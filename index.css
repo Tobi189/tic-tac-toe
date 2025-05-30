@@ -1,11 +1,16 @@
 body{
     align-items: center;
     display: flex;
-    justify-content: center;;
+    justify-content: center;
+    flex-direction:column;
 }
 
 canvas{
     border: 1px solid black;
     background-color: white;
 
+}
+
+button{
+    display:none;
 }
