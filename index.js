@@ -60,7 +60,7 @@ window.addEventListener('resize', () => {
 
 function drawX(row, col){
     ctx.strokeStyle = 'rgba(0, 0, 0)';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(col * cellWidth + cellWidth * 0.1, row * cellHeight + cellHeight * 0.1);
     ctx.lineTo((col + 1) * cellWidth - cellWidth * 0.1, (row + 1) * cellHeight - cellHeight * 0.1);
@@ -73,26 +73,33 @@ function drawX(row, col){
 }
 function drawO(row, col){
     ctx.strokeStyle = 'rgba(0,0,0)';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.arc((col + 0.5) * cellWidth, (row + 0.5) * cellHeight, cellWidth * 0.4, 0, Math.PI * 2);
     ctx.stroke();
 }
 
 function drawWinnerLine(arr, winner){
-    ctx.strokeStyle = 'rgba(0,0,0)';
-    ctx.lineWidth = 4;
+    row1 = arr[0][0];
+    col1 = arr[0][1];
+
+    row2 = arr[1][0];
+    col2 = arr[1][1];
+
+    ctx.strokeStyle = 'rgb(255, 87, 34)';
+    ctx.lineWidth = 6;
     ctx.beginPath();
-    // Start at center of first cell
-    ctx.moveTo(
-        arr[0][1] * cellWidth + cellWidth / 10,
-        arr[0][0] * cellHeight + cellHeight / 10
-    );
-    // End at center of second cell
-    ctx.lineTo(
-        arr[1][1] * cellWidth + cellWidth / 2,
-        arr[1][0] * cellHeight + cellHeight / 2
-    );
+    if(col1 === 0 && col2 === 2){
+        ctx.moveTo(col1 * cellWidth + cellWidth * 0.05, row1 * cellHeight + cellHeight * 0.5);
+        ctx.lineTo(col2 * cellWidth + cellWidth * 0.95, row2 * cellHeight + cellHeight * 0.5);
+    }else if(row1 === 0 && row2 === 2){
+        ctx.moveTo(col1 * cellWidth + cellWidth * 0.5, row1 * cellHeight + 0.05 * cellHeight);
+        ctx.lineTo(col2 * cellWidth + cellWidth * 0.5, row2 * cellHeight + 0.95 * cellHeight);
+    }
+
+    
+
+
     ctx.stroke();
 }
 
