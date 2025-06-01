@@ -86,10 +86,16 @@ function drawWinnerLine(arr, winner){
     row2 = arr[1][0];
     col2 = arr[1][1];
 
-    ctx.strokeStyle = 'rgb(255, 87, 34)';
+    ctx.strokeStyle = 'rgb(255, 87, 34,0.5)';
     ctx.lineWidth = 6;
     ctx.beginPath();
-    if(col1 === 0 && col2 === 2){
+    if(row1 == 0 &&  col1 == 0 && row2 == 2 && col2 == 2){
+        ctx.moveTo(0.05 * cellWidth, 0.05 * cellHeight);
+        ctx.lineTo(2.95 * cellWidth, 2.95 * cellHeight);
+    }else if(row1 == 2 && col1 == 0 && row2 == 0 && col2 == 2){
+        ctx.moveTo(0.05 * cellWidth, 2.95 * cellHeight);
+        ctx.lineTo(2.95 * cellWidth, 0.05 * cellHeight);
+    }else if(col1 === 0 && col2 === 2){
         ctx.moveTo(col1 * cellWidth + cellWidth * 0.05, row1 * cellHeight + cellHeight * 0.5);
         ctx.lineTo(col2 * cellWidth + cellWidth * 0.95, row2 * cellHeight + cellHeight * 0.5);
     }else if(row1 === 0 && row2 === 2){
