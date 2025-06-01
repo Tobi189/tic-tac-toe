@@ -32,15 +32,11 @@ function drawGridLine(){
 
 function drawState(){
     for(let i = 0; i < 3; i++){
-        for(let j = 0;j < 3; j++){
-            if(gameState[i][j] === null){
-                return;
-            }else{
-                if(gameState[i][j] === 'x'){
-                    drawX(i,j);
-                }else{
-                    drawO(i,j);
-                }
+        for(let j = 0; j < 3; j++){
+            if(gameState[i][j] === 'x'){
+                drawX(i, j);
+            } else if(gameState[i][j] === 'o'){
+                drawO(i, j);
             }
         }
     }
@@ -52,15 +48,19 @@ window.addEventListener('resize', () => {
     canvas.width = canvas.height = Math.min(window.innerWidth, window.innerHeight) * 0.8;
     cellWidth = canvas.width / 3;
     cellHeight = canvas.height / 3;
-    drawState();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGridLine();
-    drawWinnerLine(checkWinner(), winner);
-    
+    drawState();
+    if (winner) {
+        // Redraw winner text and line
+        const winLine = checkWinner(); // This will also redraw the text
+        if (winLine) drawWinnerLine(winLine, winner);
+    }
 })
 
 function drawX(row, col){
     ctx.strokeStyle = 'rgba(0, 0, 0)';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.moveTo(col * cellWidth + cellWidth * 0.1, row * cellHeight + cellHeight * 0.1);
     ctx.lineTo((col + 1) * cellWidth - cellWidth * 0.1, (row + 1) * cellHeight - cellHeight * 0.1);
@@ -73,7 +73,7 @@ function drawX(row, col){
 }
 function drawO(row, col){
     ctx.strokeStyle = 'rgba(0,0,0)';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 10;
     ctx.beginPath();
     ctx.arc((col + 0.5) * cellWidth, (row + 0.5) * cellHeight, cellWidth * 0.4, 0, Math.PI * 2);
     ctx.stroke();
@@ -86,9 +86,10 @@ function drawWinnerLine(arr, winner){
     row2 = arr[1][0];
     col2 = arr[1][1];
 
-    ctx.strokeStyle = 'rgb(255, 87, 34,0.5)';
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = 'rgb(0,0,0)';
+    ctx.lineWidth = 15;
     ctx.beginPath();
+
     if(row1 == 0 &&  col1 == 0 && row2 == 2 && col2 == 2){
         ctx.moveTo(0.05 * cellWidth, 0.05 * cellHeight);
         ctx.lineTo(2.95 * cellWidth, 2.95 * cellHeight);
@@ -103,9 +104,6 @@ function drawWinnerLine(arr, winner){
         ctx.lineTo(col2 * cellWidth + cellWidth * 0.5, row2 * cellHeight + 0.95 * cellHeight);
     }
 
-    
-
-
     ctx.stroke();
 }
 
@@ -114,29 +112,67 @@ function checkWinner(){
         // Check rows
         if(gameState[i][0] && gameState[i][0] === gameState[i][1] && gameState[i][1] === gameState[i][2]){
             winner = gameState[i][0];
-            turnElement.textContent = `${gameState[i][0]} wins`;
+            const fontsize = canvas.height * 0.1;
+            ctx.font = `${fontsize}px Arial`;
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${winner} is the winner!`, canvas.width / 2, canvas.height / 2);
+            turnElement.textContent = 'Game Over!';
             return [[i,0],[i,2]];
         }
         // Check columns
         if(gameState[0][i] && gameState[0][i] === gameState[1][i] && gameState[1][i] === gameState[2][i]){
             winner = gameState[0][i];
-            turnElement.textContent = `${gameState[0][i]} wins`;
+            const fontsize = canvas.height * 0.1;
+            ctx.font = `${fontsize}px Arial`;
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${winner} is the winner!`, canvas.width / 2, canvas.height / 2);
+            turnElement.textContent = 'Game Over!';
             return [[0,i],[2,i]];
         }
     }
     // Check diagonals
     if(gameState[0][0] && gameState[0][0] === gameState[1][1] && gameState[1][1] === gameState[2][2]){
         winner = gameState[0][0];
-        turnElement.textContent = `${gameState[0][0]} wins`;
+        const fontsize = canvas.height * 0.1;
+        ctx.font = `${fontsize}px Arial`;
+        ctx.fillStyle = 'red';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${winner} is the winner!`, canvas.width / 2, canvas.height / 2);
+        turnElement.textContent = 'Game Over!';
         return [[0,0],[2,2]];
     }
     if(gameState[0][2] && gameState[0][2] === gameState[1][1] && gameState[1][1] === gameState[2][0]){
         winner = gameState[0][2];
-        turnElement.textContent = `${gameState[0][2]} wins`;
-        return [[2,0],[0,2]];
+        const fontsize = canvas.height * 0.1;
+        ctx.font = `${fontsize}px Arial`;
+        ctx.fillStyle = 'red';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${winner} is the winner!`, canvas.width / 2, canvas.height / 2);
+        turnElement.textContent = 'Game Over!';
+        return [[0,2],[2,0]];
     }
 
     return null;
+}
+
+function resetGame(){
+    gameState = [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+    ];
+    
+    winner = null;
+    turn = 'x';
+    turnElement.textContent = "X turn";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGridLine();
+}
+
+function resetButtonHandler(){
+
 }
 
 
