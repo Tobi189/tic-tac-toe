@@ -12,6 +12,7 @@ let gameState = [
     [null, null, null],
     [null, null, null]
 ];
+let starterChosen = false; // Add this flag
 
 function drawGridLine(){
 
@@ -55,6 +56,8 @@ window.addEventListener('resize', () => {
         // Redraw winner text and line
         const winLine = checkWinner(); // This will also redraw the text
         if (winLine) drawWinnerLine(winLine, winner);
+    } else if (!starterChosen) {
+        drawStarterButtons();
     }
 })
 
@@ -159,9 +162,11 @@ function resetGame(){
     
     winner = null;
     turn = 'x';
+    starterChosen = false;
     turnElement.textContent = "X turn";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGridLine();
+    drawStarterButtons(); // <--- draw at reset
 }
 
 function drawResetButton() {
@@ -185,7 +190,99 @@ function drawResetButton() {
     window.resetBtnBounds = { x: btnX, y: btnY, width: btnWidth, height: btnHeight };
 }
 
+function drawStarterButtons() {
+    const Width = canvas.width * 0.7;
+    const Height = canvas.height * 0.12;
+    const X = canvas.width / 2 - Width / 2;
+    const Y = canvas.height / 2 - Height * 1.5;
+
+    // Background
+    ctx.fillStyle = '#1976d2';
+    ctx.fillRect(X, Y, Width, Height);
+
+    // Text
+    ctx.font = `${Height * 0.5}px Arial`;
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Choose the first player:', canvas.width / 2, Y + Height / 2);
+
+    // X Button
+    const btnWidth = Width * 0.4;
+    const btnHeight = Height * 0.9;
+    const btnX = canvas.width / 2 - btnWidth - 10;
+    const btnY = Y + Height + 20;
+    ctx.fillStyle = '#388e3c';
+    ctx.fillRect(btnX, btnY, btnWidth, btnHeight);
+    ctx.font = `${btnHeight * 0.6}px Arial`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText('X', btnX + btnWidth / 2, btnY + btnHeight / 2);
+
+    // O Button
+    const btnOX = canvas.width / 2 + 10;
+    ctx.fillStyle = '#d32f2f';
+    ctx.fillRect(btnOX, btnY, btnWidth, btnHeight);
+    ctx.font = `${btnHeight * 0.6}px Arial`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText('O', btnOX + btnWidth / 2, btnY + btnHeight / 2);
+
+    // Store bounds for click detection
+    window.starterBtnBounds = {
+        x: { x: btnX, y: btnY, w: btnWidth, h: btnHeight },
+        o: { x: btnOX, y: btnY, w: btnWidth, h: btnHeight }
+    };
+}
+
+// At the end of resetGame, draw the starter buttons:
+function resetGame(){
+    gameState = [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+    ];
+    winner = null;
+    turn = 'x';
+    starterChosen = false;
+    turnElement.textContent = "X turn";
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGridLine();
+    drawStarterButtons(); // <--- draw at reset
+}
+
+// On initial load, show starter buttons
+drawGridLine();
+drawStarterButtons();
+
+// Update your click handler:
 canvas.addEventListener("click", (e) => {
+    // Starter selection
+    if (!starterChosen && window.starterBtnBounds) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const bx = window.starterBtnBounds.x;
+        const bo = window.starterBtnBounds.o;
+        if (x >= bx.x && x <= bx.x + bx.w && y >= bx.y && y <= bx.y + bx.h) {
+            turn = 'x';
+            turnElement.textContent = "X turn";
+            starterChosen = true;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGridLine();
+            drawState();
+            return;
+        }
+        if (x >= bo.x && x <= bo.x + bo.w && y >= bo.y && y <= bo.y + bo.h) {
+            turn = 'o';
+            turnElement.textContent = "O turn";
+            starterChosen = true;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGridLine();
+            drawState();
+            return;
+        }
+        return; // Don't allow board play until starter chosen
+    }
+
     // Check if reset button was clicked (always allow this)
     if (winner && window.resetBtnBounds) {
         const rect = canvas.getBoundingClientRect();
@@ -199,6 +296,7 @@ canvas.addEventListener("click", (e) => {
         }
     }
 
+    if(!starterChosen) return; // Don't allow play until starter chosen
     if(winner) return;
 
     const rect = canvas.getBoundingClientRect();
@@ -235,6 +333,28 @@ canvas.addEventListener("click", (e) => {
         ctx.textAlign = 'center';
         ctx.fillText(`${winner} is the winner!`, canvas.width / 2, canvas.height / 2);
         // Draw reset button
+        drawResetButton();
+    }
+});
+
+// Also, in your resize handler, redraw the starter buttons if needed:
+window.addEventListener('resize', () => {
+    canvas.width = canvas.height = Math.min(window.innerWidth, window.innerHeight) * 0.8;
+    cellWidth = canvas.width / 3;
+    cellHeight = canvas.height / 3;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGridLine();
+    drawState();
+    if (!starterChosen) {
+        drawStarterButtons();
+    } else if (winner) {
+        const winLine = checkWinner();
+        if (winLine) drawWinnerLine(winLine, winner);
+        const fontsize = canvas.height * 0.1;
+        ctx.font = `${fontsize}px Arial`;
+        ctx.fillStyle = 'red';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${winner} is the winner!`, canvas.width / 2, canvas.height / 2);
         drawResetButton();
     }
 });
